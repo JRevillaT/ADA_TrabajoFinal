@@ -47,7 +47,6 @@ public class Huffman extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					System.out.println("utiliza carácteres extendidos");
 					Huffman frame = new Huffman();
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -90,7 +89,7 @@ public class Huffman extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				File archivo=new File();
 				test=archivo.leerTxt(txtTexto.getText());
-				System.out.println("Texto proveniente de la clase Archivo abajo");
+				System.out.println("Texto Original");
 				System.out.println(test);
 				if(test.isEmpty()) {
 					btnDesTxt.setEnabled(false);
@@ -121,7 +120,7 @@ public class Huffman extends JFrame {
 		btnDesTxt = new JButton("DESCARGAR");
 		btnDesTxt.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] charFreqs = new int[256];
+				int[] charFreqs = new int[16384];//256
 		        for (char c : test.toCharArray())
 		            charFreqs[c]++;
 		        
@@ -130,14 +129,6 @@ public class Huffman extends JFrame {
 		        
 		        // Compactar o texto
 		        String encode = encode(tree,test);
-		        // Mostrar o texto Compactado
-		        System.out.println("\nTEXTO COMPACTADO");
-		        System.out.println(encode); 
-		        
-		        // Decodificar o texto
-		        System.out.println("\n\nTEXTO DECODIFICADO");
-		        System.out.println(decode(tree,encode));
-		        
 		        
 				JFileChooser fc=new JFileChooser();
 				
@@ -148,9 +139,9 @@ public class Huffman extends JFrame {
 					try (FileWriter fw =new FileWriter(fichero)){
 						fw.write("Texto Original\n");
 						System.out.println(encode);
-						fw.write(decode(tree,encode)+"\n\n");
-						fw.write("Diccionario\n");
-						fw.write("Caracter\tRepeticion(es)\tCodigo Huffman\n");
+						fw.write(decode(tree,encode)+"\n");
+						fw.write("Diccionario\n");System.out.println("Dicionario");
+						fw.write("Caracter\tRepeticion(es)\tCodigo Huffman\n");System.out.println("Caracter\tRepeticion(es)\tCodigo Huffman\n");
 				        printCodes(tree, new StringBuffer(),fw);
 				        fw.write("\n");
 						fw.write("Mensaje Codificado\n");
@@ -228,7 +219,7 @@ public class Huffman extends JFrame {
 		ImageIcon grap2=new ImageIcon(fig2.getImage().getScaledInstance(lblimgTxt.getWidth(), lblimgTxt.getHeight(), Image.SCALE_DEFAULT));
 		lblimgTxt.setIcon(grap2);
 		
-		txtTexto = new JTextField("D:\\Jimy\\eclipse-workspace\\ADA\\test\\test1.txt");
+		txtTexto = new JTextField("D:\\Jimy\\eclipse-workspace\\ADA\\test\\Mensaje1.txt");
 		txtTexto.setBounds(10, 101, 339, 20);
 		contentPane.add(txtTexto);
 		txtTexto.setColumns(10);
@@ -318,11 +309,9 @@ public class Huffman extends JFrame {
         
         if (tree instanceof HuffmanLeaf) {
             HuffmanLeaf leaf = (HuffmanLeaf)tree;
-            System.out.println("Aqui llega la lista antes del metodo");
-            System.out.println(leaf.value);
             // Imprime la lista
-            fw.write(leaf.value + "\t\t" + leaf.frequency + "\t\t" + prefix+" Que letra soy? "+leaf.value+"\n");
-            System.out.println(leaf.value + "\t\t" + leaf.frequency + "\t\t" + prefix+" Que letra soy? "+leaf.value+"\n");
+            fw.write(leaf.value + "\t\t" + leaf.frequency + "\t\t" + prefix+"\n");
+            System.out.println(leaf.value + "\t\t" + leaf.frequency + "\t\t" + prefix);
  
         } else if (tree instanceof HuffmanNode) {
             HuffmanNode node = (HuffmanNode)tree;
