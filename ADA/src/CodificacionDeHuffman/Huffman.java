@@ -32,13 +32,16 @@ import javax.swing.ImageIcon;
 
 public class Huffman extends JFrame {
 	
+	private JLabel lblbitsInicial;
+	private JLabel lblbitsFinal;
+	private JLabel lblRpta;
 	private JButton btnDesTxt;
 	private JLabel lblEstado;
 	private String test;
 	private JPanel contentPane;
-	private JTextField txtNomArchivo;
-	private JTextField textField;
 	private JTextField txtTexto;
+	private static int cont=0;
+	private static String cant;
 
 	/**
 	 * Launch the application.
@@ -96,9 +99,15 @@ public class Huffman extends JFrame {
 					lblEstado.setForeground(Color.RED);
 					lblEstado.setText("No se cargo el archivo correctamente");
 				}else {
+					cont=0;
+					int ini=test.length()*8;
+					cant=Integer.toString(ini);
+					System.out.println(cant);
+					lblbitsInicial.setText(cant);
 					btnDesTxt.setEnabled(true);
 					lblEstado.setForeground(Color.GREEN);
 					lblEstado.setText("El archivo se cargo de manera exitosa");
+					
 				}
 				// En este ejemplo se asumirá que tendremos un máximo de 256 caracteres diferentes
 		        // Paso 1: desplazarnos por el texto contando los símbolos y armando un vector de frecuencia
@@ -106,11 +115,6 @@ public class Huffman extends JFrame {
 		});
 		btnGenerar.setBounds(359, 100, 88, 23);
 		contentPane.add(btnGenerar);
-		
-		JLabel lblGenArchivo = new JLabel("Descargar Archivo");
-		lblGenArchivo.setFont(new Font("Bookman Old Style", Font.PLAIN, 14));
-		lblGenArchivo.setBounds(156, 170, 164, 24);
-		contentPane.add(lblGenArchivo);
 		
 		JLabel lblEstDes = new JLabel("");
 		lblEstDes.setFont(new Font("Bookman Old Style", Font.PLAIN, 13));
@@ -120,7 +124,7 @@ public class Huffman extends JFrame {
 		btnDesTxt = new JButton("DESCARGAR");
 		btnDesTxt.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] charFreqs = new int[16384];//256
+				int[] charFreqs = new int[16384];
 		        for (char c : test.toCharArray())
 		            charFreqs[c]++;
 		        
@@ -139,6 +143,7 @@ public class Huffman extends JFrame {
 					try (FileWriter fw =new FileWriter(fichero)){
 						fw.write("Texto Original\n");
 						System.out.println(encode);
+						
 						fw.write(decode(tree,encode)+"\n");
 						fw.write("Diccionario\n");System.out.println("Dicionario");
 						fw.write("Caracter\tRepeticion(es)\tCodigo Huffman\n");System.out.println("Caracter\tRepeticion(es)\tCodigo Huffman\n");
@@ -147,8 +152,11 @@ public class Huffman extends JFrame {
 						fw.write("Mensaje Codificado\n");
 						fw.write(encode+"\n");
 						
+						
 						lblEstDes.setForeground(Color.green);
 						lblEstDes.setText("El archivo se descargo de manera exitosa");
+						lblbitsFinal.setText(Integer.toString(cont));
+						lblRpta.setText(Integer.toString((test.length()*8)-cont));
 			
 					} catch (IOException e1) {
 						lblEstDes.setForeground(Color.RED);
@@ -174,16 +182,6 @@ public class Huffman extends JFrame {
 		lbldoc.setBounds(288, 439, 114, 14);
 		contentPane.add(lbldoc);
 		
-		JLabel lblNombArchivo = new JLabel("Nombre del archivo:");
-		lblNombArchivo.setFont(new Font("Bookman Old Style", Font.PLAIN, 13));
-		lblNombArchivo.setBounds(10, 212, 136, 24);
-		contentPane.add(lblNombArchivo);
-		
-		txtNomArchivo = new JTextField();
-		txtNomArchivo.setBounds(156, 213, 291, 24);
-		contentPane.add(txtNomArchivo);
-		txtNomArchivo.setColumns(10);
-		
 		lblEstado = new JLabel("");
 		lblEstado.setFont(new Font("Bookman Old Style", Font.PLAIN, 14));
 		lblEstado.setBounds(10, 135, 339, 24);
@@ -193,16 +191,6 @@ public class Huffman extends JFrame {
 		lblEstDescarga.setFont(new Font("Bookman Old Style", Font.PLAIN, 11));
 		lblEstDescarga.setBounds(86, 405, 268, 23);
 		contentPane.add(lblEstDescarga);
-		
-		JLabel lblNewLabel = new JLabel("Direccion: ");
-		lblNewLabel.setFont(new Font("Bookman Old Style", Font.PLAIN, 13));
-		lblNewLabel.setBounds(10, 247, 136, 24);
-		contentPane.add(lblNewLabel);
-		
-		textField = new JTextField();
-		textField.setBounds(156, 248, 291, 24);
-		contentPane.add(textField);
-		textField.setColumns(10);
 		
 		JLabel lblimgWord = new JLabel("");
 		
@@ -223,6 +211,49 @@ public class Huffman extends JFrame {
 		txtTexto.setBounds(10, 101, 339, 20);
 		contentPane.add(txtTexto);
 		txtTexto.setColumns(10);
+		
+		JLabel lblEspMemInicial = new JLabel("Espacio en memoria inicial");
+		lblEspMemInicial.setFont(new Font("Bookman Old Style", Font.PLAIN, 11));
+		lblEspMemInicial.setBounds(32, 170, 192, 24);
+		contentPane.add(lblEspMemInicial);
+		
+		lblbitsInicial = new JLabel("");
+		lblbitsInicial.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblbitsInicial.setBounds(247, 170, 102, 24);
+		contentPane.add(lblbitsInicial);
+		
+		JLabel lblbits1 = new JLabel("bits");
+		lblbits1.setBounds(356, 175, 46, 14);
+		contentPane.add(lblbits1);
+		
+		JLabel lblEspacioEnMemoria = new JLabel("Espacio en memoria final");
+		lblEspacioEnMemoria.setFont(new Font("Bookman Old Style", Font.PLAIN, 11));
+		lblEspacioEnMemoria.setBounds(32, 205, 192, 24);
+		contentPane.add(lblEspacioEnMemoria);
+		
+		lblbitsFinal = new JLabel("");
+		lblbitsFinal.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblbitsFinal.setBounds(247, 205, 102, 24);
+		contentPane.add(lblbitsFinal);
+		
+		JLabel lblbits1_1 = new JLabel("bits");
+		lblbits1_1.setBounds(356, 210, 46, 14);
+		contentPane.add(lblbits1_1);
+		
+		JLabel lblEnun = new JLabel("En total se ahorraron ");
+		lblEnun.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblEnun.setFont(new Font("Bookman Old Style", Font.PLAIN, 13));
+		lblEnun.setBounds(32, 250, 218, 24);
+		contentPane.add(lblEnun);
+		
+		JLabel lblbits1_1_1 = new JLabel("bits");
+		lblbits1_1_1.setBounds(359, 256, 46, 14);
+		contentPane.add(lblbits1_1_1);
+		
+		lblRpta = new JLabel("");
+		lblRpta.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblRpta.setBounds(260, 256, 75, 18);
+		contentPane.add(lblRpta);
 		
 	}
 	
@@ -312,6 +343,7 @@ public class Huffman extends JFrame {
             // Imprime la lista
             fw.write(leaf.value + "\t\t" + leaf.frequency + "\t\t" + prefix+"\n");
             System.out.println(leaf.value + "\t\t" + leaf.frequency + "\t\t" + prefix);
+            cont+=prefix.length()*leaf.frequency;
  
         } else if (tree instanceof HuffmanNode) {
             HuffmanNode node = (HuffmanNode)tree;
