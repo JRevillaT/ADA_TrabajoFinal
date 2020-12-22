@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.Image;
@@ -18,8 +19,12 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.PriorityQueue;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextArea;
@@ -27,13 +32,13 @@ import javax.swing.ImageIcon;
 
 public class Huffman extends JFrame {
 	
-	private JButton btnDesDoc,btnDesTxt;
+	private JButton btnDesTxt;
 	private JLabel lblEstado;
 	private String test;
 	private JPanel contentPane;
 	private JTextField txtNomArchivo;
-	private JTextArea txtTexto;
 	private JTextField textField;
+	private JTextField txtTexto;
 
 	/**
 	 * Launch the application.
@@ -42,6 +47,7 @@ public class Huffman extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					System.out.println("utiliza carácteres extendidos");
 					Huffman frame = new Huffman();
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -84,14 +90,13 @@ public class Huffman extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				File archivo=new File();
 				test=archivo.leerTxt(txtTexto.getText());
+				System.out.println("Texto proveniente de la clase Archivo abajo");
 				System.out.println(test);
 				if(test.isEmpty()) {
-					btnDesDoc.setEnabled(false);
 					btnDesTxt.setEnabled(false);
 					lblEstado.setForeground(Color.RED);
 					lblEstado.setText("No se cargo el archivo correctamente");
 				}else {
-					btnDesDoc.setEnabled(true);
 					btnDesTxt.setEnabled(true);
 					lblEstado.setForeground(Color.GREEN);
 					lblEstado.setText("El archivo se cargo de manera exitosa");
@@ -108,6 +113,11 @@ public class Huffman extends JFrame {
 		lblGenArchivo.setBounds(156, 170, 164, 24);
 		contentPane.add(lblGenArchivo);
 		
+		JLabel lblEstDes = new JLabel("");
+		lblEstDes.setFont(new Font("Bookman Old Style", Font.PLAIN, 13));
+		lblEstDes.setBounds(10, 496, 422, 24);
+		contentPane.add(lblEstDes);
+		
 		btnDesTxt = new JButton("DESCARGAR");
 		btnDesTxt.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -118,38 +128,40 @@ public class Huffman extends JFrame {
 		        // Criar a Árvore dos códigos para a Compactação
 		        HuffmanTree tree = buildTree(charFreqs);
 		        
-		        // Resultados das quantidade e o código da Compactação
-		        System.out.println("TABELA DE CÓDIGOS");
-		        System.out.println("SÍMBOLO\tQUANTIDADE\tHUFFMAN CÓDIGO");
-		        printCodes(tree, new StringBuffer());
-		        
 		        // Compactar o texto
 		        String encode = encode(tree,test);
 		        // Mostrar o texto Compactado
 		        System.out.println("\nTEXTO COMPACTADO");
-		        System.out.println(encode); // Tamanho de 40 bits - Economia de 72 bits
+		        System.out.println(encode); 
 		        
 		        // Decodificar o texto
 		        System.out.println("\n\nTEXTO DECODIFICADO");
 		        System.out.println(decode(tree,encode));
-				
+		        
+		        
 				JFileChooser fc=new JFileChooser();
+				
 				int sel=fc.showSaveDialog(contentPane);
 
 				if(sel==JFileChooser.APPROVE_OPTION) {
 					java.io.File fichero=fc.getSelectedFile();
 					try (FileWriter fw =new FileWriter(fichero)){
 						fw.write("Texto Original\n");
-						fw.write(encode+"\n");
-						fw.write("Diccionario");
-						
+						System.out.println(encode);
+						fw.write(decode(tree,encode)+"\n\n");
+						fw.write("Diccionario\n");
+						fw.write("Caracter\tRepeticion(es)\tCodigo Huffman\n");
+				        printCodes(tree, new StringBuffer(),fw);
+				        fw.write("\n");
 						fw.write("Mensaje Codificado\n");
-						fw.write(decode(tree,encode));
+						fw.write(encode+"\n");
 						
-						
+						lblEstDes.setForeground(Color.green);
+						lblEstDes.setText("El archivo se descargo de manera exitosa");
 			
 					} catch (IOException e1) {
-						System.out.println("gg ps");
+						lblEstDes.setForeground(Color.RED);
+						lblEstDes.setText("Hemos tenido problemas en la descarga.Vuelve a intentarlo");
 						e1.printStackTrace();
 					}
 				}
@@ -158,40 +170,8 @@ public class Huffman extends JFrame {
 		
 		btnDesTxt.setEnabled(false);
 		btnDesTxt.setFont(new Font("Bookman Old Style", Font.PLAIN, 11));
-		btnDesTxt.setBounds(32, 464, 114, 23);
+		btnDesTxt.setBounds(173, 464, 114, 23);
 		contentPane.add(btnDesTxt);
-		
-		btnDesDoc = new JButton("DESCARGAR");
-		btnDesDoc.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int[] charFreqs = new int[256];
-		        for (char c : test.toCharArray())
-		            charFreqs[c]++;
-		        
-		        // Criar a Árvore dos códigos para a Compactação
-		        HuffmanTree tree = buildTree(charFreqs);
-		        
-		        // Resultados das quantidade e o código da Compactação
-		        System.out.println("TABELA DE CÓDIGOS");
-		        System.out.println("SÍMBOLO\tQUANTIDADE\tHUFFMAN CÓDIGO");
-		        printCodes(tree, new StringBuffer());
-		        
-		        // Compactar o texto
-		        String encode = encode(tree,test);
-		        // Mostrar o texto Compactado
-		        System.out.println("\nTEXTO COMPACTADO");
-		        System.out.println(encode); // Tamanho de 40 bits - Economia de 72 bits
-		        
-		        // Decodificar o texto
-		        System.out.println("\n\nTEXTO DECODIFICADO");
-		        System.out.println(decode(tree,encode));
-				
-			}
-		});
-		btnDesDoc.setEnabled(false);
-		btnDesDoc.setFont(new Font("Bookman Old Style", Font.PLAIN, 11));
-		btnDesDoc.setBounds(288, 464, 114, 23);
-		contentPane.add(btnDesDoc);
 		
 		JLabel lbltxt = new JLabel(".txt");
 		lbltxt.setHorizontalAlignment(SwingConstants.CENTER);
@@ -212,13 +192,6 @@ public class Huffman extends JFrame {
 		txtNomArchivo.setBounds(156, 213, 291, 24);
 		contentPane.add(txtNomArchivo);
 		txtNomArchivo.setColumns(10);
-		
-		txtTexto = new JTextArea();
-		txtTexto.setFont(new Font("Bookman Old Style", Font.PLAIN, 13));
-		txtTexto.setWrapStyleWord(true);
-		txtTexto.setLineWrap(true);
-		txtTexto.setBounds(10, 100, 339, 20);
-		contentPane.add(txtTexto);
 		
 		lblEstado = new JLabel("");
 		lblEstado.setFont(new Font("Bookman Old Style", Font.PLAIN, 14));
@@ -254,6 +227,12 @@ public class Huffman extends JFrame {
 		ImageIcon fig2=new ImageIcon("img/imgTxt.png");
 		ImageIcon grap2=new ImageIcon(fig2.getImage().getScaledInstance(lblimgTxt.getWidth(), lblimgTxt.getHeight(), Image.SCALE_DEFAULT));
 		lblimgTxt.setIcon(grap2);
+		
+		txtTexto = new JTextField("D:\\Jimy\\eclipse-workspace\\ADA\\test\\test1.txt");
+		txtTexto.setBounds(10, 101, 339, 20);
+		contentPane.add(txtTexto);
+		txtTexto.setColumns(10);
+		
 	}
 	
 	/* Cree el árbol de codificación: a partir del número de frecuencias de cada letra
@@ -307,7 +286,6 @@ public class Huffman extends JFrame {
     */
     public static String decode(HuffmanTree tree, String encode) {
     	assert tree != null;
-    	
     	String decodeText="";
     	HuffmanNode node = (HuffmanNode)tree;
     	for (char code : encode.toCharArray()){
@@ -335,26 +313,28 @@ public class Huffman extends JFrame {
      *     Parâmetros de Entrada: tree - Raiz da Árvore de compactação
      *     						  prefix - texto codificado com 0 e/ou 1
      */
-    public static void printCodes(HuffmanTree tree, StringBuffer prefix) {
+    public static void printCodes(HuffmanTree tree, StringBuffer prefix, FileWriter fw) throws IOException {
         assert tree != null;
         
         if (tree instanceof HuffmanLeaf) {
             HuffmanLeaf leaf = (HuffmanLeaf)tree;
-            
-            // Imprime na tela a Lista
-            System.out.println(leaf.value + "\t" + leaf.frequency + "\t\t" + prefix);
+            System.out.println("Aqui llega la lista antes del metodo");
+            System.out.println(leaf.value);
+            // Imprime la lista
+            fw.write(leaf.value + "\t\t" + leaf.frequency + "\t\t" + prefix+" Que letra soy? "+leaf.value+"\n");
+            System.out.println(leaf.value + "\t\t" + leaf.frequency + "\t\t" + prefix+" Que letra soy? "+leaf.value+"\n");
  
         } else if (tree instanceof HuffmanNode) {
             HuffmanNode node = (HuffmanNode)tree;
  
             // traverse left
             prefix.append('0');
-            printCodes(node.left, prefix);
+            printCodes(node.left, prefix,fw);
             prefix.deleteCharAt(prefix.length()-1);
  
             // traverse right
             prefix.append('1');
-            printCodes(node.right, prefix);
+            printCodes(node.right, prefix,fw);
             prefix.deleteCharAt(prefix.length()-1);
         }
     }

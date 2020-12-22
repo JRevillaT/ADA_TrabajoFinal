@@ -1,6 +1,10 @@
 package CodificacionDeHuffman;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import CodificacionDeHuffman.Huffman.*;
 
 public class File {
@@ -9,10 +13,10 @@ public class File {
         String texto = "";
         
         try{
-            BufferedReader bf = new BufferedReader(new FileReader(direccion));
+        	BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(direccion), "UTF-8"));
             String temp = "";
             String bfRead;
-            while((bfRead = bf.readLine()) != null){ 
+            while((bfRead = br.readLine()) != null){ 
                 //haz el ciclo, mientras bfRead tiene datos
                 temp = temp + bfRead; //guardado el texto del archivo
             }
